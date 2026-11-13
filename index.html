@@ -197,6 +197,7 @@ h3{font-family:var(--display);font-weight:400;font-size:22px;margin:4px 0 0}
         <button class="btn ghost small" id="garageBtn" type="button"></button>
         <button class="btn ghost small" id="dailyBtn" type="button"></button>
         <button class="btn ghost small" id="achBtn" type="button"></button>
+        <button class="btn ghost small langsw" type="button">🌐 中文 / English</button>
         <div class="seg" id="diffSeg"></div>
       </div>
       <div class="tabs" id="tabs"></div>
@@ -265,6 +266,7 @@ h3{font-family:var(--display);font-weight:400;font-size:22px;margin:4px 0 0}
         <button class="btn" id="resumeBtn"></button>
         <button class="btn ghost" id="quitBtn"></button>
       </div>
+      <button class="btn ghost small langsw" type="button">🌐 中文 / English</button>
     </div>
   </div>
 
@@ -299,7 +301,7 @@ const store = {
 };
 
 /* ---------- text ---------- */
-let LANG = store.get('fj.lang', 'en') === 'zh' ? 'zh' : 'en';
+let LANG = (store.get('fj.lang', null) || ((navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en')) === 'zh' ? 'zh' : 'en';
 const TX = {
   en:{
     lede:'Build your ride piece by piece. Fling it from the slingshot, fly past the finish line and travel from the sky to the sea, the rails and the road home.',
@@ -1906,7 +1908,9 @@ $('doubleBtn').addEventListener('click', () => {
   });
 });
 $('eBtn').addEventListener('click', openHangar);
-$('langBtn').addEventListener('click', () => { LANG = LANG === 'zh' ? 'en' : 'zh'; store.set('fj.lang', LANG); applyLang(); });
+const toggleLang = () => { LANG = LANG === 'zh' ? 'en' : 'zh'; store.set('fj.lang', LANG); applyLang(); };
+$('langBtn').addEventListener('click', toggleLang);
+document.querySelectorAll('.langsw').forEach(b => b.addEventListener('click', toggleLang));
 const muteBtn = $('muteBtn');
 function syncMute(){ muteBtn.textContent = Sfx.muted ? '×' : '♪'; }
 muteBtn.addEventListener('click', () => { Sfx.muted = !Sfx.muted; store.set('fj.muted', Sfx.muted); if (Sfx.muted) Sfx.boost(false); syncMute(); });
@@ -1919,7 +1923,9 @@ function applyLang(){
   $('doubleBtn').textContent = L().double; $('tPaused').textContent = L().paused; $('resumeBtn').textContent = L().resume; $('quitBtn').textContent = L().quit;
   $('eTitle').textContent = L().end; $('eText').textContent = L().endText; $('eBtn').textContent = L().endBtn;
   $('langBtn').textContent = L().lang;
+  document.querySelectorAll('.langsw').forEach(b => { b.textContent = '🌐 ' + (LANG === 'zh' ? 'English' : '中文'); });
   if (mode === 'hangar') renderHangar();
+  if (mode === 'garage') renderGarage(); else if (mode === 'daily') renderDaily(); else if (mode === 'achv') renderAch();
 }
 
 /* painted art (menu, stage covers, passengers, achievement badges) */
